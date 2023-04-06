@@ -27,25 +27,40 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Application definition
-
-INSTALLED_APPS = [
+BASE_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+THIRD_APPS = [
+    # Configuración de Crispy Forms
+    'crispy_forms',
+    'crispy_bootstrap5',
+
+    # Configuración de Django-allauth
     'django.contrib.sites',
-    'core',
-
-    "crispy_forms",
-    "crispy_bootstrap5",
-
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+
+    # Desinstalar django-extensions en producción (Facebook)
+    'django_extensions',
 ]
+
+OWN_APPS = [
+    'core',
+]
+
+INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
+
+# Remover en producción
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -58,6 +73,28 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'OAUTH_PKCE_ENABLED': True,
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        # 'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'name',
+            'name_format',
+            'picture',
+            'short_name'
+        ],
+        'EXCHANGE_TOKEN': True,
+        # 'LOCALE_FUNC': 'path.to.callable',
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v13.0',
+        'GRAPH_API_URL': 'https://graph.facebook.com/v13.0',
     }
 }
 
@@ -135,11 +172,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 LANGUAGE_CODE = 'es-ar'
-
-TIME_ZONE = 'America/Buenos_Aires'
-
+TIME_ZONE = 'America/Argentina/Buenos_Aires'       # Universal Cordinated Time
 USE_I18N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
